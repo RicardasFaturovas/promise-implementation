@@ -1,21 +1,20 @@
 var chai = require('chai');
-var expect =  require('chai').expect;
+var expect = chai.expect;
+var chaiAsPromised = require("chai-as-promised");
+chai.use(chaiAsPromised);
 var Promised = require('../src/promises').promised
 
 
 describe('a promise test', function() {
 
-  it('resolves a promise with a new constructor', function(done) {
-    function myFirstPromise(){
-      return new Promised(function(resolve, reject){
-        setTimeout(function(){
-          resolve('Success!');
-          done();
-        }, 100);
-      });
-    }
+  it('resolves a promise with a new constructor', function() {
+    var myFirstPromise = new Promised(function(resolve, reject){
+      setTimeout(function(){
+        resolve('Success!');
+      }, 1000);
+    });
 
-    return myFirstPromise().then(function(successMessage) {
+  return myFirstPromise.then(function(successMessage) {
       expect(successMessage).to.equal('Success!');
     })
   });
@@ -39,7 +38,7 @@ describe('a promise test', function() {
   it('should reject', function() {
     return promiseTest()
       .then(function(err) {
-        expect(promiseTest).to.throw(Error, 'Uhh param?');
+        expect(promiseTest()).to.be.rejectedWidth('Uhh param?');
       });
   })
 });

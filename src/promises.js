@@ -4,6 +4,10 @@
 var exports = module.exports = {};
 
 exports.promised = function Promised(fn) {
+	// done for further readability of code
+	var pending = 0;
+	var accepted = 1;
+	var rejected = 2;
 
 	// store state which can be pending, accepted or rejected
 	var state = pending;
@@ -14,10 +18,7 @@ exports.promised = function Promised(fn) {
 	// store sucess & failure handlers
 	var handlers = [];
 
-	// done for further readability of code
-	var pending = 0;
-	var accepted = 1;
-	var rejected = 2;
+
 
 
 	// function to be launched when the promise is fullfilled
@@ -39,7 +40,6 @@ exports.promised = function Promised(fn) {
 	// Checks whether the result is a value or a promise. Accepts either a promise
 	// or a value and if promise waits for it to be resolved
 	// (launches resolvePromise)
-
   function resolve(result) {
     try {
       var then = getThen(result);
@@ -52,7 +52,7 @@ exports.promised = function Promised(fn) {
       reject(e);
     }
   }
-	
+
 	// Checks and returns the then method of the promise
 	function getThen(value) {
 		if (value && (typeof value === 'object' || typeof value === 'function')) {
@@ -73,10 +73,10 @@ exports.promised = function Promised(fn) {
 		     if (done) return
 		     done = true
 		     onAccepted(value)
-	    }, function (value) {
+	    }, function (reason) {
 		     if (done) return
 		     done = true
-		     onRejected(value)
+		     onRejected(reason)
 		   })
 		 } catch (err) {
 		  	if (done) return
@@ -151,27 +151,15 @@ exports.promised = function Promised(fn) {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ TESTS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+// var Promised = require('../src/promises.js').promised;
 // var myFirstPromise = new Promised(function(resolve, reject){
 //   setTimeout(function(){
 //     resolve("Success!"); //Yay! Everything went well!
 //   }, 2000);
 // });
 //
-// myFirstPromise
-//  	.then(function(successMessage){
+// myFirstPromise.then(function(successMessage){
 //   console.log("Yay! " + successMessage);
 // }).then(function(){
 //   console.log("Yay for the second time!");
 // });
-//
-// function coolPromise(){
-// 	return new Promised(function(res,err){
-//   	setTimeout(function(){
-//     	res(2);
-// 			console.log(res);
-//     },1000);
-//   })
-// }
-//
-// coolPromise();
