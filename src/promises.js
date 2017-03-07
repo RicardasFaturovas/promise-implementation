@@ -1,7 +1,9 @@
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~~~~~~~~~~~~~~~~~~~~~~~ PROMISE IMPLEMENTATION ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-function Promised(fn) {
+var exports = module.exports = {};
+
+exports.promised = function Promised(fn) {
 
 	// store state which can be pending, accepted or rejected
 	var state = pending;
@@ -37,6 +39,7 @@ function Promised(fn) {
 	// Checks whether the result is a value or a promise. Accepts either a promise
 	// or a value and if promise waits for it to be resolved
 	// (launches resolvePromise)
+
   function resolve(result) {
     try {
       var then = getThen(result);
@@ -49,7 +52,7 @@ function Promised(fn) {
       reject(e);
     }
   }
-
+	
 	// Checks and returns the then method of the promise
 	function getThen(value) {
 		if (value && (typeof value === 'object' || typeof value === 'function')) {
@@ -149,26 +152,26 @@ function Promised(fn) {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ TESTS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-var myFirstPromise = new Promised(function(resolve, reject){
-  setTimeout(function(){
-    resolve("Success!"); //Yay! Everything went well!
-  }, 2000);
-});
-
-myFirstPromise
- 	.then(function(successMessage){
-  console.log("Yay! " + successMessage);
-}).then(function(){
-  console.log("Yay for the second time!");
-});
-
-function coolPromise(){
-	return new Promised(function(res,err){
-  	setTimeout(function(){
-    	res(2);
-			console.log(res);
-    },1000);
-  })
-}
-
-coolPromise();
+// var myFirstPromise = new Promised(function(resolve, reject){
+//   setTimeout(function(){
+//     resolve("Success!"); //Yay! Everything went well!
+//   }, 2000);
+// });
+//
+// myFirstPromise
+//  	.then(function(successMessage){
+//   console.log("Yay! " + successMessage);
+// }).then(function(){
+//   console.log("Yay for the second time!");
+// });
+//
+// function coolPromise(){
+// 	return new Promised(function(res,err){
+//   	setTimeout(function(){
+//     	res(2);
+// 			console.log(res);
+//     },1000);
+//   })
+// }
+//
+// coolPromise();
