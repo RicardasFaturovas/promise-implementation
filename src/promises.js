@@ -114,31 +114,31 @@ exports.promised = function Promised(fn) {
 	// basically same as done but instead returns a new promise, which can be
 	// resolved or rejected
 	this.then = function (onAccepted, onRejected) {
-  var _this = this;
-  return new Promised(function (resolve, reject) {
-    return _this.done(function (result) {
-      if (typeof onAccepted === 'function') {
-        try {
-          return resolve(onAccepted(result));
-        } catch (err) {
-          return reject(err);
+    var _this = this;
+    return new Promised(function (resolve, reject) {
+      return _this.done(function (result) {
+        if (typeof onAccepted === 'function') {
+          try {
+            return resolve(onAccepted(result));
+          } catch (err) {
+            return reject(err);
+          }
+        } else {
+          return resolve(result);
         }
-      } else {
-        return resolve(result);
-      }
-    }, function (error) {
-      if (typeof onRejected === 'function') {
-        try {
-          return resolve(onRejected(error));
-        } catch (err) {
-          return reject(err);
+      }, function (error) {
+        if (typeof onRejected === 'function') {
+          try {
+            return resolve(onRejected(error));
+          } catch (err) {
+            return reject(err);
+          }
+        } else {
+          return reject(error);
         }
-      } else {
-        return reject(error);
-      }
+      });
     });
-  });
-}
+  }
 
 	// Finally resolves the promise by taking the original function
 	// and the 2 handlers: fullfilled and rejected

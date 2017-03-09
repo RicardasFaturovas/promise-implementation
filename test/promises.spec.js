@@ -33,12 +33,37 @@ describe('a promise test', function() {
       .then(function(result) {
         expect(result).to.equal('BOOYAH!');
       });
-  })
+  });
 
   it('should reject', function() {
-    return promiseTest()
-      .then(function(err) {
-        expect(promiseTest()).to.be.rejectedWidth('Uhh param?');
+    expect(promiseTest()).to.be.rejectedWith('Uhh param?');
+  });
+
+  it('should chain', function(done) {
+    (new Promised(function(resolve, fail) {
+      setTimeout(resolve, 100, ['success']);
+    }))
+    .then(function(result) {
+      return String(result).toUpperCase();
+    })
+    .then(function(result) {
+      expect(result).to.be.equal('SUCCESS');
+      done();
+    })
+  });
+
+  it('should chain', function(done) {
+    (new Promised(function(resolve, fail) {
+      setTimeout(resolve, 100, ['success']);
+    }))
+    .then(function(result) {
+      return new Promised(function(resolve) {
+        resolve(String(result).toUpperCase());
       });
-  })
+    })
+    .then(function(result) {
+      expect(result).to.be.equal('SUCCESS');
+      done();
+    })
+  });
 });
