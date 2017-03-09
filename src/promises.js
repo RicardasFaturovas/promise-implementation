@@ -18,9 +18,6 @@ exports.promised = function Promised(fn) {
 	// store sucess & failure handlers
 	var handlers = [];
 
-
-
-
 	// function to be launched when the promise is fullfilled
   function fulfill(result) {
     state = accepted;
@@ -48,8 +45,8 @@ exports.promised = function Promised(fn) {
         return
       }
       fulfill(result);
-    } catch (e) {
-      reject(e);
+    } catch (err) {
+      reject(err);
     }
   }
 
@@ -151,15 +148,15 @@ exports.promised = function Promised(fn) {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ TESTS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// var Promised = require('../src/promises.js').promised;
-// var myFirstPromise = new Promised(function(resolve, reject){
-//   setTimeout(function(){
-//     resolve("Success!"); //Yay! Everything went well!
-//   }, 2000);
-// });
-//
-// myFirstPromise.then(function(successMessage){
-//   console.log("Yay! " + successMessage);
-// }).then(function(){
-//   console.log("Yay for the second time!");
-// });
+var Promised = require('../src/promises.js').promised;
+var myFirstPromise = new Promised(function(resolve, reject){
+  setTimeout(function(){
+    resolve("Success!"); //Yay! Everything went well!
+  }, 2000);
+});
+
+myFirstPromise.then(function(successMessage){
+  console.log("Yay! " + successMessage);
+}).then(function(){
+  console.log("Yay for the second time!");
+});
