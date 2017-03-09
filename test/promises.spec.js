@@ -36,9 +36,6 @@ describe('a promise test', function() {
   })
 
   it('should reject', function() {
-    return promiseTest()
-      .then(function(err) {
-        expect(promiseTest()).to.be.rejectedWidth('Uhh param?');
-      });
+    expect(promiseTest()).to.be.rejectedWith('Uhh param?');
   })
 });

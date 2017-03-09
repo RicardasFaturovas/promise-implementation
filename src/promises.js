@@ -4,15 +4,21 @@
 var exports = module.exports = {};
 
 exports.promised = function Promised(fn) {
+
+	var promisedState = {
+		 PENDING : 0,
+		 ACCEPTED : 1,
+		 REJECTED : 2
+	}
 	// done for further readability of code
-	var pending = 0;
-	var accepted = 1;
+	// var promisedState.PENDING = 0; //enum constants captial letters also make object
+	// var promisedState.ACCEPTED = 1;
 	var rejected = 2;
 
-	// store state which can be pending, accepted or rejected
-	var state = pending;
+	// store state which can be PENDING, ACCEPTED or rejected
+	var state = promisedState.PENDING;
 
-	// store value once accepted or rejected
+	// store value once ACCEPTED or rejected
 	var value = null;
 
 	// store sucess & failure handlers
@@ -20,7 +26,7 @@ exports.promised = function Promised(fn) {
 
 	// function to be launched when the promise is fullfilled
   function fulfill(result) {
-    state = accepted;
+    state = promisedState.ACCEPTED;
     value = result;
     handlers.forEach(handle);
     handlers = null;
@@ -28,7 +34,7 @@ exports.promised = function Promised(fn) {
 
 	// function to be launched when the promise is rejected
   function reject(error) {
-    state = rejected;
+    state = promisedState.REJECTED;
     value = error;
     handlers.forEach(handle);
     handlers = null;
@@ -84,15 +90,15 @@ exports.promised = function Promised(fn) {
 
 	// Handle implementation. First pushes the handlers to the array
 	// then depening on the promise state fires handle methods
-	// (onAccepted oronRejected)
+	// (onAccepted or onRejected)
   function handle(handler) {
-    if (state === pending) {
+    if (state === promisedState.PENDING) {
       handlers.push(handler);
     } else {
-      if (state === accepted && typeof handler.onAccepted === 'function') {
+      if (state === promisedState.ACCEPTED && typeof handler.onAccepted === 'function') {
         handler.onAccepted(value);
       }
-      if (state === rejected && typeof handler.onRejected === 'function') {
+      if (state === promisedState.REJECTED && typeof handler.onRejected === 'function') {
         handler.onRejected(value);
       }
     }
@@ -148,15 +154,15 @@ exports.promised = function Promised(fn) {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ TESTS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-var Promised = require('../src/promises.js').promised;
-var myFirstPromise = new Promised(function(resolve, reject){
-  setTimeout(function(){
-    resolve("Success!"); //Yay! Everything went well!
-  }, 2000);
-});
-
-myFirstPromise.then(function(successMessage){
-  console.log("Yay! " + successMessage);
-}).then(function(){
-  console.log("Yay for the second time!");
-});
+// var Promised = require('../src/promises.js').promised;
+// var myFirstPromise = new Promised(function(resolve, reject){
+//   setTimeout(function(){
+//     resolve("Success!"); //Yay! Everything went well!
+//   }, 2000);
+// });
+//
+// myFirstPromise.then(function(successMessage){
+//   console.log("Yay! " + successMessage);
+// }).then(function(){
+//   console.log("Yay for the second time!");
+// });
