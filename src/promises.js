@@ -5,15 +5,12 @@ var exports = module.exports = {};
 
 exports.promised = function Promised(fn) {
 
+	//Enum of promise states
 	var promisedState = {
 		 PENDING : 0,
 		 ACCEPTED : 1,
 		 REJECTED : 2
 	}
-	// done for further readability of code
-	// var promisedState.PENDING = 0; //enum constants captial letters also make object
-	// var promisedState.ACCEPTED = 1;
-	var rejected = 2;
 
 	// store state which can be PENDING, ACCEPTED or rejected
 	var state = promisedState.PENDING;
@@ -115,52 +112,111 @@ exports.promised = function Promised(fn) {
     }, 0);
   }
 
-
 	// Then method impplementation
 	// basically same as done but instead returns a new promise, which can be
 	// resolved or rejected
 	this.then = function (onAccepted, onRejected) {
-  var _this = this;
-  return new Promised(function (resolve, reject) {
-    return _this.done(function (result) {
-      if (typeof onAccepted === 'function') {
-        try {
-          return resolve(onAccepted(result));
-        } catch (err) {
-          return reject(err);
+    var _this = this;
+    return new Promised(function (resolve, reject) {
+      return _this.done(function (result) {
+        if (typeof onAccepted === 'function') {
+          try {
+            return resolve(onAccepted(result));
+          } catch (err) {
+            return reject(err);
+          }
+        } else {
+          return resolve(result);
         }
-      } else {
-        return resolve(result);
-      }
-    }, function (error) {
-      if (typeof onRejected === 'function') {
-        try {
-          return resolve(onRejected(error));
-        } catch (err) {
-          return reject(err);
+      }, function (error) {
+        if (typeof onRejected === 'function') {
+          try {
+            return resolve(onRejected(error));
+          } catch (err) {
+            return reject(err);
+          }
+        } else {
+          return reject(error);
         }
-      } else {
-        return reject(error);
-      }
+      });
     });
-  });
-}
+  }
+
+	// Catch implementation. Same usage as the then method but only works with
+	// rejected promises. Passes undefined as onAccepted condition.
+	this.catch = function(onRejected) {
+		var _this = this;
+		return _this.done(undefined,
+			 function (error) {
+			if (typeof onRejected === 'function') {
+				try {
+					return resolve(onRejected(error));
+				} catch (err) {
+					return reject(err);
+				}
+			} else {
+				return reject(error);
+			}
+		});
+	}
 
 	// Finally resolves the promise by taking the original function
 	// and the 2 handlers: fullfilled and rejected
   resolvePromise(fn, resolve, reject);
 }
 
+var Promised = require('../src/promises.js').promised;
+
+Promised.resolve = function(promise){
+	return new Promised(function(resolve,reject){
+		resolve(promise);
+	});
+}
+
+Promised.reject = function(promise){
+	return new Promised(function(resolve,reject){
+		reject(promise);
+	});
+}
+
+Promised.all = function(promises){
+	var results = []
+	var remainingPromises = promises.length;
+	if (!remainingPromises) {
+		return Promised.resolve(results)
+	}
+ 	return new Promised(function(resolve, reject) {
+		promises.forEach(function(promise, index) {
+			Promised.resolve(promise).then(function(result) {
+			results[index] = result
+			remainingPromises -= 1
+				if (remainingPromises === 0) {
+					resolve(results)
+				}
+			}, reject)
+		})
+	})
+};
+
+Promised.race = function(promises){
+	return new Promised(function(resolve,reject){
+		console.log(promises)
+		promises.forEach(function(promise){
+			Promised.resolve(promise).then(resolve).catch(reject);
+		})
+	})
+};
+
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ TESTS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// var Promised = require('../src/promises.js').promised;
+
 // var myFirstPromise = new Promised(function(resolve, reject){
 //   setTimeout(function(){
 //     resolve("Success!"); //Yay! Everything went well!
 //   }, 2000);
 // });
-//
+
 // myFirstPromise.then(function(successMessage){
 //   console.log("Yay! " + successMessage);
 // }).then(function(){
