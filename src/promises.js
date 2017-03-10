@@ -22,12 +22,12 @@ function Promised(fn) {
   var handlers = [];
 
   // function to be launched when the promise is fullfilled
-  function fulfill(result) {
-    state = promisedState.ACCEPTED;
-    value = result;
-    handlers.forEach(handle);
-    handlers = null;
-  }
+  // function fulfill(result) {
+  //   state = promisedState.ACCEPTED;
+  //   value = result;
+  //   handlers.forEach(handle);
+  //   handlers = null;
+  // }
 
   // function to be launched when the promise is rejected
   function reject(error) {
@@ -36,6 +36,13 @@ function Promised(fn) {
     handlers.forEach(handle);
     handlers = null;
   }
+
+	function changeState(newState, result) {
+		state = newState;
+		value = result;
+		handlers.forEach(handle);
+    handlers = null;
+	}
 
   // Checks whether the result is a value or a promise. Accepts either a promise
   // or a value and if promise waits for it to be resolved
@@ -47,9 +54,9 @@ function Promised(fn) {
         resolvePromise(then.bind(result), resolve, reject)
         return
       }
-      fulfill(result);
+      changeState(promisedState.ACCEPTED, result);
     } catch (err) {
-      reject(err);
+      changeState(promisedState.REJECTED, err);
     }
   }
 
@@ -117,27 +124,7 @@ function Promised(fn) {
   resolvePromise(fn, resolve, reject);
 }
 
-// Catch implementation. Same usage as the then method but only works with
-// rejected promises. Passes undefined as onAccepted condition.
-Promised.prototype.catch = function(onRejected) {
-  var _this = this;
-	return new Promised(function(resolve,reject){
-		return _this.done(undefined,
-	    function(error) {
-	      if (typeof onRejected === 'function') {
-	        try {
-	          return resolve(onRejected(error));
-	        } catch (err) {
-	          return reject(err);
-	        }
-	      } else {
-	        return reject(error);
-	      }
-	    });
-	})
-}
-
-// Then method impplementation
+// Then method implementation
 // basically same as done but instead returns a new promise, which can be
 // resolved or rejected
 Promised.prototype.then = function(onAccepted, onRejected) {
@@ -166,6 +153,13 @@ Promised.prototype.then = function(onAccepted, onRejected) {
     });
   });
 };
+
+// Catch implementation. Same usage as the then method but only works with
+// rejected promises. Passes undefined as onAccepted condition.
+Promised.prototype.catch = function(onRejected) {
+  var _this = this;
+	return Promised.prototype.then.call(this,undefined,onRejected);
+}
 
 Promised.resolve = function(promise) {
   return new Promised(function(resolve, reject) {
