@@ -21,14 +21,6 @@ function Promised(fn) {
   // store sucess & failure handlers
   var handlers = [];
 
-  // function to be launched when the promise is fullfilled
-  // function fulfill(result) {
-  //   state = promisedState.ACCEPTED;
-  //   value = result;
-  //   handlers.forEach(handle);
-  //   handlers = null;
-  // }
-
   // function to be launched when the promise is rejected
   function reject(error) {
     state = promisedState.REJECTED;
@@ -37,12 +29,12 @@ function Promised(fn) {
     handlers = null;
   }
 
-	function changeState(newState, result) {
-		state = newState;
-		value = result;
-		handlers.forEach(handle);
+  function changeState(newState, result) {
+    state = newState;
+    value = result;
+    handlers.forEach(handle);
     handlers = null;
-	}
+  }
 
   // Checks whether the result is a value or a promise. Accepts either a promise
   // or a value and if promise waits for it to be resolved
@@ -158,7 +150,7 @@ Promised.prototype.then = function(onAccepted, onRejected) {
 // rejected promises. Passes undefined as onAccepted condition.
 Promised.prototype.catch = function(onRejected) {
   var _this = this;
-	return Promised.prototype.then.call(this,undefined,onRejected);
+  return Promised.prototype.then.call(this, undefined, onRejected);
 }
 
 Promised.resolve = function(promise) {
