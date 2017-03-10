@@ -104,7 +104,7 @@ describe('a promise test', function() {
 
   it('should reject the promise with baz',function(){
     var pr1 = new Promised(function(res, rej) {
-      setTimeout(res, 50, 'foo')
+      setTimeout(res, 2000, 'foo')
     });
 
     var pr2 = new Promised(function(res, rej){
