@@ -10,7 +10,7 @@ function Promised(fn) {
     PENDING: 0,
     ACCEPTED: 1,
     REJECTED: 2
-  }
+  };
 
   // store state which can be PENDING, ACCEPTED or rejected
   var state = promisedState.PENDING;
@@ -43,8 +43,8 @@ function Promised(fn) {
     try {
       var then = getThen(result);
       if (then) {
-        resolvePromise(then.bind(result), resolve, reject)
-        return
+        resolvePromise(then.bind(result), resolve, reject);
+        return;
       }
       changeState(promisedState.ACCEPTED, result);
     } catch (err) {
@@ -69,18 +69,18 @@ function Promised(fn) {
     var done = false;
     try {
       fn(function(value) {
-        if (done) return
-        done = true
-        onAccepted(value)
+        if (done) return;
+        done = true;
+        onAccepted(value);
       }, function(reason) {
-        if (done) return
-        done = true
-        onRejected(reason)
-      })
+        if (done) return;
+        done = true;
+        onRejected(reason);
+      });
     } catch (err) {
-      if (done) return
-      done = true
-      onRejected(err)
+      if (done) return;
+      done = true;
+      onRejected(err);
     }
   }
 
@@ -109,36 +109,38 @@ function Promised(fn) {
         onRejected: onRejected
       });
     }, 0);
-  }
+  };
 
   // Finally resolves the promise by taking the original function
   // and the 2 handlers: fullfilled and rejected
   resolvePromise(fn, resolve, reject);
 }
 
+
 // Then method implementation
 // basically same as done but instead returns a new promise, which can be
 // resolved or rejected
 Promised.prototype.then = function(onAccepted, onRejected) {
   var _this = this;
+
+  function tryResolve(value,resolve,reject){
+    try {
+      return resolve(onAccepted(value));
+    } catch (err) {
+      return reject(err);
+    }
+  }
+
   return new Promised(function(resolve, reject) {
     return _this.done(function(result) {
       if (typeof onAccepted === 'function') {
-        try {
-          return resolve(onAccepted(result));
-        } catch (err) {
-          return reject(err);
-        }
+        return tryResolve(result, resolve, reject);
       } else {
         return resolve(result);
       }
     }, function(error) {
       if (typeof onRejected === 'function') {
-        try {
-          return resolve(onRejected(error));
-        } catch (err) {
-          return reject(err);
-        }
+         return tryResolve(error, resolve, reject);
       } else {
         return reject(error);
       }
@@ -149,51 +151,49 @@ Promised.prototype.then = function(onAccepted, onRejected) {
 // Catch implementation. Same usage as the then method but only works with
 // rejected promises. Passes undefined as onAccepted condition.
 Promised.prototype.catch = function(onRejected) {
-  var _this = this;
   return Promised.prototype.then.call(this, undefined, onRejected);
-}
+};
 
 Promised.resolve = function(promise) {
   return new Promised(function(resolve, reject) {
     resolve(promise);
   });
-}
+};
 
 Promised.reject = function(promise) {
   return new Promised(function(resolve, reject) {
     reject(promise);
   });
-}
+};
 
 // Promise.all implementation. Takes an array of promises, resolves them one by
 // one and pushes them all to a new array, if any of the promises rejects, the
 // merged array also rejects, otherwise it gets fulfilled
 Promised.all = function(promises) {
-  var results = []
+  var results = [];
   var remainingPromises = promises.length;
   if (!remainingPromises) {
-    return Promised.resolve(results)
+    return Promised.resolve(results);
   }
   return new Promised(function(resolve, reject) {
     promises.forEach(function(promise, index) {
       Promised.resolve(promise).then(function(result) {
-        results[index] = result
-        remainingPromises -= 1
+        results[index] = result;
+        remainingPromises -= 1;
         if (remainingPromises === 0) {
-          resolve(results)
+          resolve(results);
         }
-      }, reject)
-    })
-  })
+      }, reject);
+    });
+  });
 };
 
 Promised.race = function(promises) {
   return new Promised(function(resolve, reject) {
-    console.log(promises)
     promises.forEach(function(promise) {
       Promised.resolve(promise).then(resolve).catch(reject);
-    })
-  })
+    });
+  });
 };
 
 var promised = Promised;
